@@ -4,10 +4,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { AuthCredentialsValidator, TAuthCredentialsValidator } from "@/lib/validators/account-credentials-validator";
+import { trpc } from "@/trpc/client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthCredentialsValidator, TAuthCredentialsValidator } from "@/lib/validators/account-credentials-validator";
 
 const SignUpPage = () => {
 	const {
@@ -18,8 +19,10 @@ const SignUpPage = () => {
 		resolver: zodResolver(AuthCredentialsValidator),
 	});
 
+	const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({});
+
 	const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
-		// senda data to server
+		mutate({ email, password });
 	};
 
 	return (
@@ -61,6 +64,7 @@ const SignUpPage = () => {
 											"focus-visible:ring-red-500": errors.password,
 										})}
 										placeholder="Password"
+										type="password"
 									/>
 								</div>
 								<Button>Sign up</Button>
