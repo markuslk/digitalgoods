@@ -9,6 +9,9 @@ import { trpc } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { ZodError } from "zod";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
 	const {
@@ -19,7 +22,29 @@ const SignUpPage = () => {
 		resolver: zodResolver(AuthCredentialsValidator),
 	});
 
-	const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({});
+	const router = useRouter();
+
+	const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({
+		onError: (err) => {
+			if (err.data?.code === "CONFLICT") {
+				toast.error("This email is already in use. Sign in instead?");
+
+				return;
+			}
+
+			if (err instanceof ZodError) {
+				toast.error(err.issues[0].message);
+
+				return;
+			}
+
+			toast.error("Something went wrong. Please try again.");
+		},
+		onSuccess: ({ sentToEmail }) => {
+			toast.success(`Verification email sent to ${sentToEmail}`);
+			router.push("/verify-email?to=" + sentToEmail);
+		},
+	});
 
 	const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
 		mutate({ email, password });
@@ -55,6 +80,7 @@ const SignUpPage = () => {
 										})}
 										placeholder="youremail@example.com"
 									/>
+									{errors?.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
 								</div>
 								<div className="grid gap-1 py-2">
 									<Label htmlFor="password">Password</Label>
@@ -66,6 +92,7 @@ const SignUpPage = () => {
 										placeholder="Password"
 										type="password"
 									/>
+									{errors?.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
 								</div>
 								<Button>Sign up</Button>
 							</div>
