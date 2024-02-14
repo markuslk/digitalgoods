@@ -4,9 +4,13 @@ import { Icons } from "./Icons";
 import NavItems from "./NavItems";
 import { buttonVariants } from "./ui/button";
 import Cart from "./Cart";
+import { getServerSideUser } from "@/lib/payload-utils";
+import { cookies } from "next/headers";
+import UserAccountNav from "./UserAccountNav";
 
-const Navbar = () => {
-	const user = null;
+const Navbar = async () => {
+	const nextCookies = cookies();
+	const { user } = await getServerSideUser(nextCookies);
 
 	return (
 		<div className="sticky inset-x-0 top-0 z-50 h-16 bg-white">
@@ -43,10 +47,10 @@ const Navbar = () => {
 									)}
 
 									{user ? (
-										<div></div>
+										<UserAccountNav />
 									) : (
 										<Link
-											href={"/sign-up"}
+											href="/sign-up"
 											className={buttonVariants({
 												variant: "ghost",
 											})}>
