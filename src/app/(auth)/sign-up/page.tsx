@@ -62,7 +62,7 @@ const SignUpPage = () => {
 							href={"/sign-in"}
 							className={buttonVariants({
 								variant: "link",
-								className: "gap-1.5",
+								className: "gap-1.5 text-blue-500",
 							})}>
 							Already have an account? Sign-in
 						</Link>
