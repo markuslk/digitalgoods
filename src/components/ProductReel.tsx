@@ -60,7 +60,7 @@ const ProductReel = (props: ProductReelProps) => {
 							<ProductListing
 								product={product}
 								index={i}
-								key={i}
+								key={`product-${i}`}
 							/>
 						))}
 					</div>
